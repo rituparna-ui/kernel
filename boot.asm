@@ -1,14 +1,27 @@
-ORG 0x7c00
+ORG 0
 BITS 16
 
+jmp 0x7c0:start
 start:
+  cli             ; clear interrupts
+
+  mov ax, 0x7c0
+  mov ds, ax
+  mov es, ax
+
+  mov ax, 0x00
+  mov ss, ax
+  mov sp, 0x7c00
+
+  sti             ; enable interrups
+  
   mov si, message
   call print
   jmp $
 
 print:
 .loop:
-  lodsb ; load si into al and si++
+  lodsb            ; load si into al and si++
   cmp al, 0
   je .done
   call print_char
