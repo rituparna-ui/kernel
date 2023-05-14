@@ -1,2 +1,0 @@
-Hello, I am Rituparna
-This is being read from the disk
