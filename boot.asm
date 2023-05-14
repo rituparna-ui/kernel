@@ -10,18 +10,6 @@ times 33 db 0
 start:
   jmp 0x7c0:step2
 
-handle_zero:
-  mov ah, 0eh
-  mov al, 'R'
-  int 0x10
-  iret            ; return from interrupt
-
-handle_one:
-  mov ah, 0eh
-  mov al, 'O'
-  int 0x10
-  iret
-
 step2:
   cli             ; clear interrupts
 
@@ -35,21 +23,25 @@ step2:
 
   sti             ; enable interrups
 
-  mov word[ss:0x00], handle_zero
-  mov word[ss:0x02], 0x7c0
+  ; mov si, message
+  ; call print
+
+  mov ah, 2
+  mov al, 1
+  mov ch, 0
+  mov cl, 2
+  mov dh, 0
+  mov bx, buffer
+  int 0x13
+  jc error
   
-  mov word[ss:0x04], handle_one
-  mov word[ss:0x06], 0x7c0
+  mov si, buffer
+  call print
 
+  jmp $
 
-
-  int 0
-  int 1
-
-  mov ax, 0x00
-  div ax
-
-  mov si, message
+error:
+  mov si, error_message
   call print
   jmp $
 
@@ -69,7 +61,10 @@ print_char:
   int 0x10
   ret
 
-message: db 'Hello Ritu', 0
+; message: db 'Hello Ritu', 0
+error_message: db "Failed to load", 0
 
 times 510 - ($ - $$) db 0
 dw 0xAA55 ; because little endian
+
+buffer:
