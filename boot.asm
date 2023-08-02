@@ -1,6 +1,7 @@
 ORG 0        ; set origin to address 0x7C00
 BITS 16           ; set execution mode to 16 bits
 
+jmp 0x7C0: start
 start:
   cli             ; clear interrupts
   mov ax, 0x7C0
