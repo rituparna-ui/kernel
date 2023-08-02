@@ -1,7 +1,16 @@
-ORG 0x7C00        ; set origin to address 0x7C00
+ORG 0        ; set origin to address 0x7C00
 BITS 16           ; set execution mode to 16 bits
 
-start:      ; bios interrupt
+start:
+  cli             ; clear interrupts
+  mov ax, 0x7C0
+  mov ds, ax
+  mov es, ax
+
+  mov ax, 0x00
+  mov ss, ax
+  mov sp, 0x7C00
+  sti             ; enable interrupts
   mov si, message
   call print
   jmp $
@@ -19,7 +28,7 @@ print:
 
 print_char:
   mov ah, 0eh
-  int 0x10
+  int 0x10        ; bios interrupt
   ret
 
 message: db "Hello, Ritu !", 0
