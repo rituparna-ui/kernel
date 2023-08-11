@@ -10,13 +10,6 @@ times 33 db 0
 start:
   jmp 0x7C0: step2
 
-handle_zero:
-  mov ah, 0eh
-  mov al, 'A'
-  mov bx, 0x00
-  int 0x10
-  iret
-
 step2:
   cli             ; clear interrupts
   mov ax, 0x7C0
@@ -28,13 +21,21 @@ step2:
   mov sp, 0x7C00
   sti             ; enable interrupts
 
-  mov word[ss:0x00], handle_zero
-  mov word[ss:0x02], 0x7C0
+  mov ah, 02h     ; Read sector command
+  mov al, 1       ; Read 1 sector
+  mov ch, 0       ; Cylinder number
+  mov cl, 2       ; Sector number
+  mov dh, 0       ; head number
+  mov bx, buffer
 
-  mv ax, 0x00
-  div ax
+  int 0x13
+  jc error
+  mov si, buffer
+  call print
+  jmp $
 
-  mov si, message
+error:
+  mov si, error_message
   call print
   jmp $
 
@@ -54,7 +55,9 @@ print_char:
   int 0x10        ; bios interrupt
   ret
 
-message: db "Hello, Ritu !", 0
+error_message: db "Failed to load sector", 0
 
 times 510-($-$$) db 0
 dw 0xAA55
+
+buffer:
